@@ -29,11 +29,25 @@ Today's volatility estimate is built recursively from yesterday's estimate plus
 yesterday's realized squared return — so a single large move immediately shows up
 in the estimate, instead of being averaged away over a long window.
 
+## Files
+
+| File | Description |
+|---|---|
+| `ewma_calculator.py` | Core EWMA functions (`ewma_volatility`, `ewma_var`) — demo runs on synthetic data |
+| `ewma_calculator_data.py` | Loads real data by ticker (via yfinance) or CSV, then compares simple vs. EWMA VaR |
+
 ## Usage
 
 ```bash
-pip install numpy
+pip install numpy pandas yfinance
+
+# Run the core module on synthetic demo data (calm period + volatility shock)
 python ewma_calculator.py
+
+# Run on real market data
+python ewma_calculator_data.py --ticker AAPL
+python ewma_calculator_data.py --ticker BTC-USD --lam 0.97 --confidence 0.99
+python ewma_calculator_data.py --csv prices.csv --price-col Close
 ```
 
 Use the functions directly with your own return series:
@@ -65,3 +79,16 @@ Confidence 99% | Simple VaR: 59,208.24 | EWMA VaR: 69,486.85
 
 The EWMA estimate picks up the recent volatility spike much faster than the simple
 average, producing a higher (more conservative) VaR right when it matters most.
+
+### Real data example
+
+```
+$ python ewma_calculator_data.py --ticker AAPL
+
+Data range: 2025-09-26 ~ 2026-09-25 (251 trading days)
+Simple std dev: 1.5412% | EWMA volatility (λ=0.94): 1.4160%
+
+1-Day VaR at 95% confidence, $1,000,000 portfolio
+  Simple VaR : 25,350.78
+  EWMA VaR   : 23,292.35
+```
