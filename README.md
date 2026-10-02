@@ -39,7 +39,7 @@ in the estimate, instead of being averaged away over a long window.
 ## Usage
 
 ```bash
-pip install numpy pandas yfinance
+pip install numpy pandas yfinance matplotlib
 
 # Run the core module on synthetic demo data (calm period + volatility shock)
 python ewma_calculator.py
@@ -65,20 +65,26 @@ statistically noisy relative to volatility.
 
 ## Sample Output
 
-The demo script simulates 20 calm days followed by 5 high-volatility days, to show
-how EWMA reacts faster than a simple equal-weighted standard deviation:
+The demo script simulates 60 calm days, a 15-day volatility shock, then 60 calm days
+again, to show how EWMA tracks regime changes while a simple equal-weighted standard
+deviation stays one fixed number:
 
 ```
-Simple std dev (25 days, equal weight): 2.5452%
-EWMA volatility (recent-weighted, λ=0.94): 2.9870%
+Simple std dev (135 days, equal weight): 1.3756%
+EWMA volatility (recent-weighted, λ=0.94): 0.6604%
 
-Confidence 90% | Simple VaR: 32,618.87 | EWMA VaR: 38,281.54
-Confidence 95% | Simple VaR: 41,865.46 | EWMA VaR: 49,133.36
-Confidence 99% | Simple VaR: 59,208.24 | EWMA VaR: 69,486.85
+Confidence 90% | Simple VaR: 17,630.25 | EWMA VaR: 8,463.48
+Confidence 95% | Simple VaR: 22,627.96 | EWMA VaR: 10,862.65
+Confidence 99% | Simple VaR: 32,001.59 | EWMA VaR: 15,362.51
 ```
 
-The EWMA estimate picks up the recent volatility spike much faster than the simple
-average, producing a higher (more conservative) VaR right when it matters most.
+![EWMA volatility vs simple standard deviation](ewma_volatility.png)
+
+The chart shows the point: EWMA jumps almost immediately when the shock hits (around
+day 62), then decays back toward the calm level as the crisis fades. The simple
+standard deviation is one fixed number that is too low during the shock and too high
+afterward. By the last day the crisis is over, so EWMA correctly reports low current
+volatility (0.66%) while the simple average (1.38%) is still inflated by the old shock.
 
 ### Real data example
 
